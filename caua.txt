@@ -1,0 +1,15 @@
+composer global require laravel/installer
+laravel new example-app
+composer install
+php artisan config:cache  (resolve problemas no db caso precise alterar algo durante execução)
+php artisan serve
+
+Migrate
+php artisan make:migration create_livros_table
+php artisan migrate:status
+php artisan migrate:fresh
+
+Model
+php artisan make:model Livro
+php artisan make:migration insert_livros_into_livros_table
+
