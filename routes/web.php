@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LivroController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LivroJsonController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,16 +15,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [LivroController::class, 'inicial']);
+Route::get('/', [LivroController::class, 'inicial'])-> name('inicial');
+Route::get('/lista', [LivroController::class, 'lista'])-> name('lista');
+Route::get('/lista/filtrar', [LivroController::class, 'filtrar'])-> name('filtrar') ;
+Route::get('/adicionar', [LivroController::class, 'adicionar'])-> name('adicionar');
+Route::get('/atualizar/{id}', [LivroController::class, 'atualizar'])-> name('atualizar');
 
-Route::get('/lista', [LivroController::class, 'lista']);
-Route::get('/lista/filtrar', [LivroController::class, 'filtrar']);
+Route::post('/adicionar', [LivroController::class, 'adicionarLivro'])-> name('adicionarLivro');
 
-Route::get('/adicionar', [LivroController::class, 'adicionar']);
-Route::post('/adicionar', [LivroController::class, 'adicionarLivro']);
+Route::delete('/deletar/{id}', [LivroController::class, 'deletar'])-> name('deletar');
 
-Route::post('/deletar/{id}', [LivroController::class, 'deletar']);
-
-Route::get('/atualizar/{id}', [LivroController::class, 'atualizar']);
-Route::post('/atualizar', [LivroController::class, 'atualizarLivro']);
+Route::put('/atualizar/{id}', [LivroController::class, 'atualizarLivro'])-> name('atualizarLivro');
 

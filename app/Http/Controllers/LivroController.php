@@ -10,8 +10,14 @@ class LivroController extends Controller
 {
     public function lista()
     {
-        $livros = Livro::all(); 
-
+        try
+        {
+            $livros = Livro::all();
+        }
+        catch (\Exception $e)
+        {
+            return redirect('/');
+        }
         return view('lista', ['livros' => $livros]);
     }
 
@@ -36,69 +42,115 @@ class LivroController extends Controller
         $livro->genero = $request->genero;
         $livro->autor = $request->autor;
         $livro->paginas = $request->paginas;
+        
+        try
+        {
+            $livro->save();
+        }
+        catch (\Exception $e)
+        {
+            return redirect('/adicionar');
+        }
 
-        $livro->save();
         session()->flash('success', 'Livro adicionado com sucesso!');
         return redirect('/adicionar');
     }
 
     public function deletar($id)
     {
-        $livro = Livro::find($id);
-        $livro->delete();
+        try 
+        {
+            $livro = Livro::find($id);
+            if ($livro) {
+                $livro->delete();
+            } else {
+                throw new \Exception("Livro não encontrado");
+            }
+        }
+        catch (\Exception $e)
+        {
+            return redirect('/lista');
+        }
+        
         return redirect('/lista');
     }
-
+    
     public function atualizar($id)
     {
-        $livro = Livro::find($id);
+        try
+        {
+            $livro = Livro::findOrFail($id);
+        }
+        catch (\Exception $e)
+        {
+            return redirect('/lista');
+        }
+
         return view('atualizar', ['livro' => $livro]);
     }
 
     public function atualizarLivro(Request $request)
     {
         $this->validar($request);
-        $livro = Livro::find($request->id);
-        $livro->titulo = $request->titulo;
-        $livro->lançamento = $request->lançamento;
-        $livro->genero = $request->genero;
-        $livro->autor = $request->autor;
-        $livro->paginas = $request->paginas;
-
-        $livro->save();
+        try 
+        {
+            $livro = Livro::find($request->id); 
+            if ($livro) {
+                $livro->titulo = $request->titulo;
+                $livro->lançamento = $request->lançamento;
+                $livro->genero = $request->genero;
+                $livro->autor = $request->autor;
+                $livro->paginas = $request->paginas;
+                $livro->save();
+            } else {
+                throw new \Exception("Livro não encontrado");
+            }
+        }
+        catch (\Exception $e)
+        {
+            return redirect('/atualizar/'.$request->id)->with('error', 'Erro ao atualizar livro!');
+        }
+    
         session()->flash('success', 'Livro atualizado com sucesso!');
         return view('atualizar', ['livro' => $livro]);
     }
 
     public function filtrar(Request $request)
     {
-        $this->validar($request);
+        //$this->validar($request);
 
-        $livros = Livro::query();
+        $livrosF = Livro::query();
 
         if ($request->titulo != null) {
-            $livros = $livros->where('titulo', 'like', '%'.$request->titulo.'%');
+            $livrosF = $livrosF->where('titulo', 'like', '%'.$request->titulo.'%');
         }
         
         if ($request->data_inicial != null) {
-            $livros = $livros->where('lançamento', '>=', $request->data_inicial);
+            $livrosF = $livrosF->where('lançamento', '>=', $request->data_inicial);
         }
 
         if ($request->data_final != null) {
-            $livros = $livros->where('lançamento', '<=', $request->data_final);
+            $livrosF = $livrosF->where('lançamento', '<=', $request->data_final);
         }
 
         if ($request->genero != null) {
-            $livros = $livros->where('genero', $request->genero);
+            $livrosF = $livrosF->where('genero', $request->genero);
         }
         
         if ($request->autor != null) {
-            $livros = $livros->where('autor', 'like', '%'.$request->autor.'%');
+            $livrosF = $livrosF->where('autor', 'like', '%'.$request->autor.'%');
+        }
+        
+        try
+        {
+            $livrosF = $livrosF->get();
+        }
+        catch (\Exception $e)
+        {
+            return redirect('/lista');
         }
 
-        $livros = $livros->get();
-
-        return view('lista', ['livros' => $livros]);
+        return view('lista', ['livrosF' => $livrosF]);
     }
 
     private function validar(Request $request)
@@ -107,7 +159,7 @@ class LivroController extends Controller
             'titulo' => 'required|max:255|min:3',
             'lançamento' => 'required|date|before_or_equal:now',
             'genero' => 'required',
-            'autor' => 'required|max:255|min:3|alpha',
+            'autor' => 'required|max:255|min:3|regex:/^[a-zA-Z\s]+$/',
             'paginas' => 'required|integer|min:1|max:9999',
         ]);
     }

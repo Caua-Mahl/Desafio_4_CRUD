@@ -58,8 +58,10 @@
         </p>
 
         <div style="display:flex;">
-            <form class="escondido" style="display: none;" action="/deletar/{{$livro->id}}" method="post">
+            <form class="escondido" style="display: none;" action="deletar/{{$livro->id}}" method="post">
                 @csrf
+                @method('delete')
+
                 <input type="submit" value="deletar">
             </form>
 

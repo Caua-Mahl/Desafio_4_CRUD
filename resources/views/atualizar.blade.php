@@ -4,6 +4,13 @@
 
 @section('conteudo')
 
+@if (session('success'))
+    <div style="color:green;">
+        {{ session('success') }}
+    </div>
+    <br>
+@endif
+
 @if ($errors->any())
     <div>
         <ul>
@@ -16,8 +23,10 @@
 
 <h1>Atualizar Livros</h1>
 
-<form action="/atualizar" method="post">
+<form action="/atualizar/{{$livro->id}}" method="post">
     @csrf
+    @method('put')
+
     <input type="hidden" name="id" value="{{$livro->id}}">
     <label for="titulo">Título:</label>
     <input type="text" name="titulo" value="{{$livro->titulo}}" required/>
