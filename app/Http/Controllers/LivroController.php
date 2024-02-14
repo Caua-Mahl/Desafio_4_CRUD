@@ -114,43 +114,43 @@ class LivroController extends Controller
         session()->flash('success', 'Livro atualizado com sucesso!');
         return view('atualizar', ['livro' => $livro]);
     }
-
+    
     public function filtrar(Request $request)
     {
         //$this->validar($request);
 
-        $livrosF = Livro::query();
+        $livros = Livro::query();
 
         if ($request->titulo != null) {
-            $livrosF = $livrosF->where('titulo', 'like', '%'.$request->titulo.'%');
+            $livros = $livros->where('titulo', 'like', '%'.$request->titulo.'%');
         }
         
         if ($request->data_inicial != null) {
-            $livrosF = $livrosF->where('lançamento', '>=', $request->data_inicial);
+            $livros = $livros->where('lançamento', '>=', $request->data_inicial);
         }
 
         if ($request->data_final != null) {
-            $livrosF = $livrosF->where('lançamento', '<=', $request->data_final);
+            $livros = $livros->where('lançamento', '<=', $request->data_final);
         }
 
         if ($request->genero != null) {
-            $livrosF = $livrosF->where('genero', $request->genero);
+            $livros = $livros->where('genero', $request->genero);
         }
         
         if ($request->autor != null) {
-            $livrosF = $livrosF->where('autor', 'like', '%'.$request->autor.'%');
+            $livros = $livros->where('autor', 'like', '%'.$request->autor.'%');
         }
         
         try
         {
-            $livrosF = $livrosF->get();
+            $livros = $livros->get();
         }
         catch (\Exception $e)
         {
             return redirect('/lista');
         }
 
-        return view('lista', ['livrosF' => $livrosF]);
+        return view('listaFiltrada', ['livros' => $livros]);
     }
 
     private function validar(Request $request)
